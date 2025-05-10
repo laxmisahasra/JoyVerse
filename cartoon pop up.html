@@ -1,186 +1,262 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Disney Game</title>
+  <title>Disney Shadow Match</title>
   <style>
-    /* Reset and base styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
-      height: 100vh;
-      background-color: #b0c4de; /* Light Steel Blue */
-      font-family: 'Arial', sans-serif;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Container with background image */
-    .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      max-width: 1400px;
-      padding: 40px;
-      position: relative;
-      background-image: url("https://i.pinimg.com/474x/b7/2b/73/b72b73e0dd5c46b3b771dc172f77561e.jpg");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      border-radius: 20px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Columns for side images */
-    .column {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    /* Floating animation */
-    @keyframes float {
-      0%   { transform: translateY(0); }
-      50%  { transform: translateY(-20px); }
-      100% { transform: translateY(0); }
-    }
-
-    .column img {
-      width: 120px;
-      height: 160px;
-      object-fit: cover;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      animation: float 4s ease-in-out infinite;
-    }
-
-    /* Main content styling */
-    .main-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 1;
-    }
-
-    /* Decorative heading */
-    .heading {
-      font-size: 48px;
-      color: #ffffff;
-      text-shadow: 2px 2px 4px #000000;
-      margin-bottom: 30px;
+      font-family: sans-serif;
+      background: linear-gradient(135deg, #f0e4d7, #e0cfe9);
       text-align: center;
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
     }
 
-    /* Buttons styling */
-    .buttons {
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      color: #3e2a47;
+    }
+
+    /* Floating bubble effect */
+    .bubble {
+      position: absolute;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      opacity: 0.7;
+      pointer-events: none;
+      animation: float 10s linear infinite;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translateY(-150vh) scale(1);
+        opacity: 0.5;
+      }
+      100% {
+        transform: translateY(150vh) scale(0.5);
+        opacity: 0.8;
+      }
+    }
+
+    /* Faint moving texture */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://www.transparenttextures.com/patterns/45-degree-fabric-dark.png');
+      opacity: 0.1;
+      pointer-events: none;
+      animation: moveBackground 60s linear infinite;
+    }
+
+    @keyframes moveBackground {
+      0% { background-position: 0 0; }
+      100% { background-position: 100% 100%; }
+    }
+
+    .disney-posters {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 150px;
+      z-index: -1;
+    }
+
+    .left-posters {
+      left: 0;
+    }
+
+    .right-posters {
+      right: 0;
+    }
+
+    .game-container {
       display: flex;
-      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 40px;
     }
 
-    button {
-      padding: 15px 30px;
-      font-size: 18px;
-      border: none;
+    .shadow, .character {
+      width: 150px;
+      height: 150px;
+      border: 2px dashed #ccc;
       border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.3s;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
 
-    .play-btn {
-      background-color: #1E90FF; /* Dodger Blue */
-      color: white;
+    .shadow img {
+      width: 100px;
+      opacity: 0.3;
     }
 
-    .exit-btn {
-      background-color: #4682B4; /* Steel Blue */
-      color: white;
+    .character img {
+      width: 100px;
+      cursor: grab;
     }
 
-    button:hover {
-      transform: scale(1.1);
+    .shadow.correct {
+      background-color: #a0e7a0;
     }
 
-    /* Hide audio controls */
-    audio {
-      display: none;
+    .shadow.incorrect {
+      background-color: #ffadad;
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-        align-items: center;
+    .star {
+      position: absolute;
+      font-size: 40px;
+      opacity: 0;
+      animation: popStar 1s ease-out forwards;
+    }
+
+    .wrong-emoji {
+      position: absolute;
+      font-size: 40px;
+      top: 10px;
+      right: 10px;
+      animation: fadeOut 1s ease-out forwards;
+    }
+
+    @keyframes popStar {
+      0% {
+        transform: translate(0, 0) scale(0);
+        opacity: 1;
       }
-      .column {
-        flex-direction: row;
-        justify-content: center;
+      100% {
+        transform: translate(var(--x), var(--y)) scale(1.5);
+        opacity: 0;
       }
-      .column img {
-        width: 80px;
-        height: 100px;
-      }
-      .heading {
-        font-size: 36px;
-      }
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
 <body>
+  <h1>🕶️ Match the Character to the Shadow!</h1>
 
-  <!-- Background Music -->
-  <audio id="bg-music" src="music.mp3" autoplay loop></audio>
-
-  <div class="container">
-    <!-- Left Column -->
-    <div class="column left-column">
-      <img src="https://tse3.mm.bing.net/th?id=OIP.hxJKgoA8P2pstRMNlx7T0QHaEJ&pid=Api&P=0&h=180.png" alt="Disney Character 1">
-      <img src="https://tse3.mm.bing.net/th?id=OIP.6MFKCI6DQIgRgBEky7tvdwHaKe&pid=Api&P=0&h=180.png" alt="Disney Character 2">
-      <img src="https://tse3.mm.bing.net/th?id=OIP.Ck_VGXy1JzAYTRCFZsPHiAHaHa&pid=Api&P=0&h=180.png" alt="Disney Character 3">
+  <!-- SHADOWS -->
+  <div class="game-container">
+    <div class="shadow" data-match="mickey">
+      <img src="https://clipart-library.com/images/8cxnLyBMi.jpg" alt="Mickey Shadow">
     </div>
-
-    <!-- Center Content -->
-    <div class="main-content">
-      <div class="heading">🌹✨ Welcome to Disneyland ✨🌹</div>
-      <div class="buttons">
-        <button class="play-btn" onclick="playGame()">Play</button>
-        <button class="exit-btn" onclick="exitGame()">Exit</button>
-      </div>
+    <div class="shadow" data-match="elsa">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1tptl0hIItI8j0uVaqCbDhlLlA-9BGzM0CGW1dqkpQbI0dLBj&s.jpg" alt="Elsa Shadow">
     </div>
-
-    <!-- Right Column -->
-    <div class="column right-column">
-      <img src="https://tse1.mm.bing.net/th?id=OIP._2AHPn_-IN4sqxzeeUXVRgHaJv&pid=Api&P=0&h=180.png" alt="Disney Character 4">
-      <img src="https://tse2.mm.bing.net/th?id=OIP.aYIW7D53hfbybUbrDVIbLAHaFg&pid=Api&P=0&h=180.png" alt="Disney Character 5">
-      <img src="https://tse3.mm.bing.net/th?id=OIP.MsKuq6IihvMUfGQmj2aDbgHaEJ&pid=Api&P=0&h=180.png" alt="Disney Character 6">
+    <div class="shadow" data-match="aladdin">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUuoscxy5TjGhk7sRclBcgYvQCd_XPIi9RDROMiDVKzUFgIag&s.png" alt="Aladdin Shadow">
+    </div>
+    <div class="shadow" data-match="moana">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwdLXoWBHVJRMV0OhDC3Bl-yE41RnIr1dFtveoqCRKa1tzXwQ&s.png" alt="Moana Shadow">
     </div>
   </div>
 
+  <!-- CHARACTERS -->
+  <div class="game-container characters-container" id="characters-container" style="margin-top: 50px;">
+    <div class="character" draggable="true" id="mickey" data-name="mickey">
+      <img src="https://clipart-library.com/2023/18-189951_transparent-maus-clipart-transparent-background-mickey-mouse-png.png" alt="Mickey">
+    </div>
+    <div class="character" draggable="true" id="elsa" data-name="elsa">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcQ71r_3V84oUuQmfID7EpUx8b-RVMXsPtxFYsEEnntTY2_e1C&s.jpg" alt="Elsa">
+    </div>
+    <div class="character" draggable="true" id="aladdin" data-name="aladdin">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCOt4e7Zj15yqwG0xGO-DetqXyd4_dJNb_DWPthZGSHYyfFn0&s.jpg" alt="Aladdin">
+    </div>
+    <div class="character" draggable="true" id="moana" data-name="moana">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYDI1Tx1HDVo8sr9XDVrTvP_7DcUnxP9MdYci1JYWjvx3vulc&s.png" alt="Moana">
+    </div>
+  </div>
+
+  <!-- Disney Posters -->
+  <img class="disney-posters left-posters" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAUi17Lg9_w3e7FoGBU8ssjfiO9k2LVU36LQ&s.png" alt="Mickey Poster">
+
+
+  <img class="disney-posters right-posters" src="https://lumiere-a.akamaihd.net/v1/images/p_aladdin1992_20486_174ba005.jpeg" alt="Frozen Poster">
+
   <script>
-    function playGame() {
-      // Redirect to the game page
-      window.location.href = 'game.html';
-    }
+    const characters = document.querySelectorAll('.character');
+    const shadows = document.querySelectorAll('.shadow');
 
-    function exitGame() {
-      alert('Thanks for playing!');
-      window.close();
-    }
+    // Correct match sound
+    const correctSound = new Audio('https://www.soundjay.com/button/beep-07.wav');
 
-    window.onload = () => {
-      const music = document.getElementById('bg-music');
-      music.play().catch(() => {
-        console.log("Autoplay blocked — starts on user interaction.");
+    // Shuffle characters
+    const container = document.getElementById('characters-container');
+    const charactersArr = Array.from(container.children);
+    charactersArr.sort(() => Math.random() - 0.5);
+    charactersArr.forEach(char => container.appendChild(char));
+
+    characters.forEach(character => {
+      character.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', character.dataset.name);
       });
-    };
-  </script>
+    });
 
+    shadows.forEach(shadow => {
+      shadow.addEventListener('dragover', e => e.preventDefault());
+
+      shadow.addEventListener('drop', e => {
+        e.preventDefault();
+        const dragged = e.dataTransfer.getData('text/plain');
+        const match = shadow.dataset.match;
+
+        if (dragged === match) {
+          shadow.classList.add('correct');
+          correctSound.play();
+
+          for (let i = 0; i < 5; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.textContent = '⭐';
+            const x = Math.random() * 100 - 50;
+            const y = Math.random() * -100 - 20;
+            star.style.setProperty('--x', `${x}px`);
+            star.style.setProperty('--y', `${y}px`);
+            shadow.appendChild(star);
+            setTimeout(() => shadow.removeChild(star), 1000);
+          }
+        } else {
+          shadow.classList.add('incorrect');
+          const wrong = document.createElement('div');
+          wrong.className = 'wrong-emoji';
+          wrong.textContent = '❌';
+          shadow.appendChild(wrong);
+          setTimeout(() => {
+            shadow.classList.remove('incorrect');
+            shadow.removeChild(wrong);
+          }, 1000);
+        }
+      });
+    });
+
+    // Bubbles effect
+    setInterval(() => {
+      const bubble = document.createElement('div');
+      const size = Math.random() * 20 + 10;
+      bubble.classList.add('bubble');
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      document.body.appendChild(bubble);
+      setTimeout(() => document.body.removeChild(bubble), 10000);
+    }, 500);
+  </script>
 </body>
 </html>
-
